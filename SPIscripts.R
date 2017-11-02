@@ -9,6 +9,8 @@ AnalyseSPIData = function(GOIfile,GBPfile,plasmid,write = FALSE,writename = "SPI
 #-------------------------------------------------------------------------------------------
 # Section 1: load in files, merge into single file and tidy up column names and order
   
+  C=c("Query","Condition","Plate #","Row","Column","P-Value","Z-Score","Normalized Growth Ratio (Comparer::Exp)","Growth Ratio (Comparer / Exp)","Log Growth Ratio","Normalized Colony Size 1","Normalized Colony Size 2","Normalized Colony Size 3","Normalized Colony Size 4","Colony Circularity 1","Colony Circularity 2","Colony Circularity 3","Colony Circularity 4","ID Column")
+  
   # Fnd skip number
   GOI1 = read_delim(GOIfile,"\t", col_names = F)
   GBP1 = read_delim(GBPfile,"\t", col_names = F)
@@ -19,8 +21,8 @@ AnalyseSPIData = function(GOIfile,GBPfile,plasmid,write = FALSE,writename = "SPI
   skipGOI = GOIQs[2] # to troubleshoot try -1
   skipGBP = GBPQs[2]
   
-  GOItable1 = read_delim(GOIfile,"\t",skip = skipGOI,col_types = cols()) #Load files into R
-  GBPtable1 = read_delim(GBPfile,"\t",skip = skipGBP,col_types = cols())
+  GOItable1 = read_delim(GOIfile,"\t",skip = skipGOI,col_types = cols(), col_names = C) #Load files into R
+  GBPtable1 = read_delim(GBPfile,"\t",skip = skipGBP,col_types = cols(), col_names = C)
   
   GOItable2 = filter(GOItable1, Query == plasmid) #Select only experimental comparison
   GBPtable2 = filter(GBPtable1, Query == plasmid)
@@ -165,4 +167,19 @@ SmoothSPIdata = function(data,output){
   
   smoothed = read_tsv("smoothed.tab")
   return(smoothed)
+}
+
+#------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------
+
+CheckSmoothing = function(smoothed){
+  
+  data = arrange(smoothed, Plate, Row, as.numeric(Column))
+  
+  par(mfrow=c(4, 1))
+  plot(smoothed$usGOI.Z, pch = 19, col = "Red",cex = .2)
+  plot(smoothed$GOI.Z, pch = 19, col = "Black",cex = .2)
+  plot(smoothed$usGBP.Z, pch = 19, col = "Red",cex = .2)
+  plot(smoothed$GBP.Z, pch = 19, col = "Black",cex = .2)
+  
 }
